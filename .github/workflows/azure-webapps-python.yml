@@ -15,6 +15,6 @@ jobs:
     - name: Deploy to Azure Web App (Raw Code)
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'app-oryx-build' 
+        app-name: 'appservice-oryxbuild' 
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_1 }}
         package: .
