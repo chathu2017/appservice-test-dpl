@@ -1,0 +1,38 @@
+name: Build on Azure (OIDC Passwordless)
+on:
+  push:
+    branches:
+      - main
+
+# very important! meken thamai OIDC Token eka illanne, publish profile eka use karanne nehe
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  deploy-raw-code:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies (Building on GitHub)
+      # අපි dependencies ටික current folder එකේම වෙනම තැනකට install කරනවා Azure වලට ලේසි වෙන්න
+      run: pip install --target=".python_packages/lib/site-packages" -r requirements.txt
+    # old Publish Profile eka wenuwata OIDC Login eka use karanwa
+    - name: 'Azure Login via OIDC'
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Deploy to Azure Web App (Raw Code for Oryx)
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'federation-auth' # ape App Service eke nama
+        package: .
